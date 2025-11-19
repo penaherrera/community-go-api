@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { CommentDto } from 'src/comments/dto/responses/comment.dto';
+import { CommentDto } from '../../../comments/dto/responses/comment.dto';
 import { EventSummaryDto } from './event-summary.dto';
 
 export class EventDetailDto extends EventSummaryDto {

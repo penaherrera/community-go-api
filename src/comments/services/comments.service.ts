@@ -8,7 +8,7 @@ import { CreateCommentDto } from '../dto/requests/create-comment.dto';
 import { UpdateCommentDto } from '../dto/requests/update-comment.dto';
 import { CommentDto } from '../dto/responses/comment.dto';
 import { plainToInstance } from 'class-transformer';
-import { CreatorDto } from 'src/events/dto/responses/creator.dto';
+import { CreatorDto } from '../../events/dto/responses/creator.dto';
 
 @Injectable()
 export class CommentsService {
@@ -91,7 +91,6 @@ export class CommentsService {
   }
 
   async remove(id: string, userId: string): Promise<void> {
-    // Verificar que el comentario existe y pertenece al usuario
     const existingComment = await this.prisma.comment.findUnique({
       where: { id },
     });

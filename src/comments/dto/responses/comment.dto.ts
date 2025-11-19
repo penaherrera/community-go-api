@@ -1,5 +1,5 @@
 import { Expose, Transform, Type } from 'class-transformer';
-import { CreatorDto } from 'src/events/dto/responses/creator.dto';
+import { CreatorDto } from '../../../events/dto/responses/creator.dto';
 
 export class CommentDto {
   @Expose()
