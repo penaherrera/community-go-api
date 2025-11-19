@@ -16,6 +16,10 @@ export class CreateEventDto {
   readonly description: string;
 
   @IsNotEmpty()
+  @IsString()
+  readonly captions: string;
+
+  @IsNotEmpty()
   @IsDateString()
   readonly startDate: Date;
 

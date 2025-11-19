@@ -16,7 +16,7 @@ import { User } from '../../users/decorators/get-user.decorator';
 import { UserEntity } from '../../users/entities/user.entity';
 import { CreateEventDto } from '../dto/requests/create-event.dto';
 import { UpdateEventDto } from '../dto/requests/update-event.dto';
-import { EventDto } from '../dto/responses/event.dto';
+import { EventSummaryDto } from '../dto/responses/event-summary.dto';
 
 @Controller('events')
 @UseGuards(JwtAuthGuard)
@@ -37,7 +37,7 @@ export class EventsController {
   findOne(
     @Param('id') id: string,
     @User() user: UserEntity,
-  ): Promise<EventDto> {
+  ): Promise<EventSummaryDto> {
     return this.eventsService.findOne(id, user.id);
   }
 

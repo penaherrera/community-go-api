@@ -2,10 +2,12 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { CreateEventDto } from '../dto/requests/create-event.dto';
 import { UpdateEventDto } from '../dto/requests/update-event.dto';
-import { EventDto } from '../dto/responses/event.dto';
+import { EventSummaryDto } from '../dto/responses/event-summary.dto';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from '../../users/dtos/responses/user.dto';
 import { CreatorDto } from '../dto/responses/creator.dto';
+import { CommentDto } from '../../comments/dto/responses/comment.dto';
+import { EventDetailDto } from '../dto/responses/event-detail.dto';
 
 @Injectable()
 export class EventsService {
@@ -16,7 +18,7 @@ export class EventsService {
   async create(
     createEventDto: CreateEventDto,
     userId: string,
-  ): Promise<EventDto> {
+  ): Promise<EventSummaryDto> {
     const event = await this.prismaService.event.create({
       data: {
         ...createEventDto,
@@ -30,7 +32,7 @@ export class EventsService {
     });
 
     return plainToInstance(
-      EventDto,
+      EventSummaryDto,
       {
         ...event,
         user: plainToInstance(UserDto, event.user, {
@@ -48,7 +50,7 @@ export class EventsService {
     );
   }
 
-  async findAll(userId: string): Promise<EventDto[]> {
+  async findAll(userId: string): Promise<EventSummaryDto[]> {
     const allEvents = await this.prismaService.event.findMany({
       where: {
         deletedAt: null,
@@ -57,12 +59,15 @@ export class EventsService {
       include: {
         likes: true,
         bookMarks: true,
+        comments: true,
         user: true,
       },
     });
 
     return allEvents.map((event) => {
       const likesCount = event.likes.length;
+      const commentsCount = event.comments.length;
+
       const isLikedByCurrentUser = event.likes.some(
         (like) => like.userId === userId,
       );
@@ -75,11 +80,12 @@ export class EventsService {
       });
 
       return plainToInstance(
-        EventDto,
+        EventSummaryDto,
         {
           ...event,
           creator: creatorDto,
           likesCount,
+          commentsCount,
           isLikedByCurrentUser,
           isBookmarkedByCurrentUser,
         },
@@ -90,11 +96,16 @@ export class EventsService {
     });
   }
 
-  async findOne(id: string, userId: string): Promise<EventDto> {
+  async findOne(id: string, userId: string): Promise<EventDetailDto> {
     const event = await this.prismaService.event.findUnique({
       where: { id },
       include: {
         user: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
         likes: true,
         bookMarks: true,
       },
@@ -104,10 +115,13 @@ export class EventsService {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
+    const commentsCount = event.comments.length;
     const likesCount = event.likes.length;
+
     const isLikedByCurrentUser = event.likes.some(
       (like) => like.userId === userId,
     );
+
     const isBookmarkedByCurrentUser = event.bookMarks.some(
       (bookmark) => bookmark.userId === userId,
     );
@@ -116,12 +130,31 @@ export class EventsService {
       excludeExtraneousValues: true,
     });
 
+    const commentsDto = event.comments.map((comment) => {
+      const commentUserDto = plainToInstance(CreatorDto, comment.user, {
+        excludeExtraneousValues: true,
+      });
+
+      return plainToInstance(
+        CommentDto,
+        {
+          ...comment,
+          user: commentUserDto,
+        },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
+    });
+
     return plainToInstance(
-      EventDto,
+      EventDetailDto,
       {
         ...event,
         creator: creatorDto,
+        comments: commentsDto,
         likesCount,
+        commentsCount,
         isLikedByCurrentUser,
         isBookmarkedByCurrentUser,
       },
@@ -135,31 +168,69 @@ export class EventsService {
     id: string,
     updateEventDto: UpdateEventDto,
     userId: string,
-  ): Promise<EventDto> {
+  ): Promise<EventDetailDto> {
     const event = await this.prismaService.event.update({
       where: { id },
       data: updateEventDto,
       include: {
         user: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
         likes: true,
         bookMarks: true,
       },
     });
 
+    const commentsCount = event.comments.length;
     const likesCount = event.likes.length;
+
     const isLikedByCurrentUser = event.likes.some(
       (like) => like.userId === userId,
     );
+
     const isBookmarkedByCurrentUser = event.bookMarks.some(
       (bookmark) => bookmark.userId === userId,
     );
 
-    return plainToInstance(EventDto, {
-      ...event,
-      likesCount,
-      isLikedByCurrentUser,
-      isBookmarkedByCurrentUser,
+    const creatorDto = plainToInstance(CreatorDto, event.user, {
+      excludeExtraneousValues: true,
     });
+
+    const commentsDto = event.comments.map((comment) => {
+      const commentUserDto = plainToInstance(CreatorDto, comment.user, {
+        excludeExtraneousValues: true,
+      });
+
+      return plainToInstance(
+        CommentDto,
+        {
+          ...comment,
+          user: commentUserDto,
+        },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
+    });
+
+    return plainToInstance(
+      EventDetailDto,
+      {
+        ...event,
+        creator: creatorDto,
+        comments: commentsDto,
+        likesCount,
+        commentsCount,
+        isLikedByCurrentUser,
+        isBookmarkedByCurrentUser,
+      },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   async remove(id: string): Promise<void> {
