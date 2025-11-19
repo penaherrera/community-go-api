@@ -1,10 +1,11 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import { CreateEventDto } from './dto/requests/create-event.dto';
-import { UpdateEventDto } from './dto/requests/update-event.dto';
-import { EventDto } from './dto/responses/event.dto';
+import { PrismaService } from '../../common/prisma/prisma.service';
+import { CreateEventDto } from '../dto/requests/create-event.dto';
+import { UpdateEventDto } from '../dto/requests/update-event.dto';
+import { EventDto } from '../dto/responses/event.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserDto } from 'src/users/dtos/responses/user.dto';
+import { UserDto } from '../../users/dtos/responses/user.dto';
+import { CreatorDto } from '../dto/responses/creator.dto';
 
 @Injectable()
 export class EventsService {
@@ -69,12 +70,23 @@ export class EventsService {
         (bookmark) => bookmark.userId === userId,
       );
 
-      return plainToInstance(EventDto, {
-        ...event,
-        likesCount,
-        isLikedByCurrentUser,
-        isBookmarkedByCurrentUser,
+      const creatorDto = plainToInstance(CreatorDto, event.user, {
+        excludeExtraneousValues: true,
       });
+
+      return plainToInstance(
+        EventDto,
+        {
+          ...event,
+          creator: creatorDto,
+          likesCount,
+          isLikedByCurrentUser,
+          isBookmarkedByCurrentUser,
+        },
+        {
+          excludeExtraneousValues: true,
+        },
+      );
     });
   }
 
@@ -100,12 +112,23 @@ export class EventsService {
       (bookmark) => bookmark.userId === userId,
     );
 
-    return plainToInstance(EventDto, {
-      ...event,
-      likesCount,
-      isLikedByCurrentUser,
-      isBookmarkedByCurrentUser,
+    const creatorDto = plainToInstance(CreatorDto, event.user, {
+      excludeExtraneousValues: true,
     });
+
+    return plainToInstance(
+      EventDto,
+      {
+        ...event,
+        creator: creatorDto,
+        likesCount,
+        isLikedByCurrentUser,
+        isBookmarkedByCurrentUser,
+      },
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
   async update(

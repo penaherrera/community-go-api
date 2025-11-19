@@ -9,13 +9,14 @@ import {
   UseGuards,
   Put,
 } from '@nestjs/common';
-import { EventsService } from '../events.service';
+import { EventsService } from '../services/events.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { EventOwnerGuard } from '../guards/event-owner.guard';
 import { User } from '../../users/decorators/get-user.decorator';
 import { UserEntity } from '../../users/entities/user.entity';
 import { CreateEventDto } from '../dto/requests/create-event.dto';
 import { UpdateEventDto } from '../dto/requests/update-event.dto';
+import { EventDto } from '../dto/responses/event.dto';
 
 @Controller('events')
 @UseGuards(JwtAuthGuard)
@@ -33,16 +34,19 @@ export class EventsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @User() user: UserEntity) {
+  findOne(
+    @Param('id') id: string,
+    @User() user: UserEntity,
+  ): Promise<EventDto> {
     return this.eventsService.findOne(id, user.id);
   }
 
   @Put(':id')
   @UseGuards(EventOwnerGuard)
   update(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @User() user: UserEntity
+    @User() user: UserEntity,
   ) {
     return this.eventsService.update(id, updateEventDto, user.id);
   }

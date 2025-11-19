@@ -1,5 +1,6 @@
-import { Expose, Transform, Type } from 'class-transformer';
-import { UserDto } from 'src/users/dtos/responses/user.dto';
+import { Expose, Type } from 'class-transformer';
+import { UserDto } from '../../../users/dtos/responses/user.dto';
+import { CreatorDto } from './creator.dto';
 
 export class EventDto {
   @Expose()
@@ -30,10 +31,6 @@ export class EventDto {
   readonly updatedAt?: Date;
 
   @Expose()
-  @Type(() => UserDto)
-  readonly user: UserDto;
-
-  @Expose()
   readonly likesCount?: number;
 
   @Expose()
@@ -41,4 +38,8 @@ export class EventDto {
 
   @Expose()
   readonly isBookmarkedByCurrentUser?: boolean;
+
+  @Expose()
+  @Type(() => CreatorDto)
+  readonly creator: CreatorDto;
 }

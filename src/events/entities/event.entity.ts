@@ -29,10 +29,4 @@ export class EventEntity implements Event {
 
   @Type(() => UserEntity)
   readonly user: UserEntity;
-
-  // @Type(() => LikeEntity)
-  // readonly likes?: LikeEntity[];
-
-  // @Type(() => BookMarkEntity)
-  // readonly bookMarks?: BookMarkEntity[];
 }
