@@ -20,10 +20,8 @@ export class UserDto {
   readonly profilePictureUrl: string | null;
 
   @Expose()
-  @Transform(({ value }) => value.toISOString())
   readonly createdAt: Date;
 
   @Expose()
-  @Transform(({ value }) => value.toISOString())
   readonly updatedAt: Date;
 }

@@ -1,5 +1,6 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import { User } from '@prisma/client';
+import { EventEntity } from 'src/events/entities/event.entity';
 
 export class UserEntity implements User {
   readonly id: string;
@@ -38,6 +39,6 @@ export class UserEntity implements User {
   // @Type(() => BookMarkEntity)
   // readonly bookMarks?: BookMarkEntity[];
 
-  // @Type(() => EventEntity)
-  // readonly events?: EventEntity[];
+  @Type(() => EventEntity)
+  readonly events?: EventEntity[];
 }
