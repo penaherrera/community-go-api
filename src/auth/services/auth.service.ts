@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users.service';
@@ -19,7 +20,8 @@ import { hasExpired } from '../../common/utils/has-expired';
 import authConfig from '../config/auth.config';
 import type { ConfigType } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { Auth } from '@prisma/client';
+import { Auth, User } from '@prisma/client';
+import { GoogleUser } from '../interfaces/google-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -95,6 +97,63 @@ export class AuthService {
   async createAccessToken(id: string): Promise<AuthResponseDto> {
     const auth = await this.create(id);
     return this.generateJwt(auth);
+  }
+  h;
+  async handleGoogleResponse(
+    googleUser: GoogleUser,
+  ): Promise<{ access_token: string; user: any }> {
+    if (!googleUser) {
+      throw new UnauthorizedException('No user from Google');
+    }
+
+    this.logger.debug(`Google user received: ${JSON.stringify(googleUser)}`);
+
+    let user: User;
+
+    const existingUser = await this.prismaService.user.findUnique({
+      where: {
+        email: googleUser.email,
+      },
+    });
+
+    if (existingUser) {
+      user = existingUser;
+      this.logger.debug(`Existing user found: ${user.email}`);
+    } else {
+      this.logger.debug(`Creating new user for email: ${googleUser.email}`);
+
+      const createUserDto: CreateUserDto = {
+        email: googleUser.email,
+        password: crypto.randomBytes(16).toString('hex'),
+        firstName: googleUser.firstName || googleUser.given_name || '',
+        lastName: googleUser.lastName || googleUser.family_name || '',
+      };
+
+      try {
+        await this.usersService.create(createUserDto);
+        user = await this.usersService.findUserByEmail(googleUser.email);
+        this.logger.debug(`New user created: ${user.id}`);
+      } catch (error) {
+        this.logger.error(`Error creating user: ${error.message}`);
+
+        user = await this.usersService.findUserByEmail(googleUser.email);
+        if (!user) {
+          throw new ConflictException('Could not create or find user');
+        }
+      }
+    }
+
+    const tokenResponse = await this.createAccessToken(user.id);
+
+    return {
+      access_token: tokenResponse.accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    };
   }
 
   private generateJwt(auth: Auth): JwtResponseDto {
