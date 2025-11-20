@@ -6,6 +6,10 @@ import {
   Body,
   Patch,
   UseFilters,
+  Get,
+  Res,
+  Req,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { PassportLocalGuard } from '../guards/passport-local.guard';
@@ -15,6 +19,7 @@ import { ResetPasswordDto } from '../../auth/dtos/requests/reset-password.dto';
 import { EmailDto } from '../dtos/requests/email.dto';
 import { PasswordService } from '../services/password.service';
 import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
+import { GoogleOAuthGuard } from '../guards/google-oauth.guard';
 
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
@@ -50,6 +55,16 @@ export class AuthController {
   @Patch('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<void> {
     return this.passwordService.resetPassword(resetPasswordDto);
+  }
+
+  @Get('google-login')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth(@Request() req) {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthCallback(@Req() req) {
+    return await this.authService.handleGoogleResponse(req.user);
   }
 
   // sign out missing
