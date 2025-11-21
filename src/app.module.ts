@@ -7,9 +7,11 @@ import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
 import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
+import { AttendancesModule } from './attendances/attendances.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, EventsModule, LikesModule, CommentsModule],
+  imports: [PrismaModule, AuthModule, UsersModule, EventsModule, LikesModule, CommentsModule, AttendancesModule, BookmarksModule],
   controllers: [AppController],
   providers: [AppService],
 })

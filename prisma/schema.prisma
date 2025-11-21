@@ -28,6 +28,7 @@ model User {
   bookMarks          BookMark[]
   events             Event[]
   comments           Comment[]
+  attendances        Attendance[]
 
   @@map("users")
 }
@@ -62,6 +63,7 @@ model Event {
   likes     Like[]
   bookMarks BookMark[]
   comments  Comment[]
+  attendances Attendance[]
 
   @@map("events")
 }
@@ -100,3 +102,16 @@ model BookMark {
   @@unique([userId, eventId])
   @@map("bookmark")
 }
+
+model Attendance {
+  id        String   @id @default(uuid())
+  eventId   String   @map("event_id")
+  userId    String   @map("user_id")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, eventId])
+  @@map("attendances")
+}
+

@@ -30,6 +30,9 @@ export class EventSummaryDto {
   readonly likesCount?: number;
 
   @Expose()
+  readonly attendeesCount?: number;
+
+  @Expose()
   readonly isLikedByCurrentUser?: boolean;
 
   @Expose()
