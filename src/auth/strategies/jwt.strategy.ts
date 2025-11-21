@@ -36,6 +36,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     const user = {
       ...auth.user,
+      jti,
       createdAt: auth.user.createdAt,
       updatedAt: auth.user.updatedAt,
     };

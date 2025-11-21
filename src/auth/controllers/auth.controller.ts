@@ -15,6 +15,7 @@ import { ResetPasswordDto } from '../../auth/dtos/requests/reset-password.dto';
 import { EmailDto } from '../dtos/requests/email.dto';
 import { PasswordService } from '../services/password.service';
 import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
@@ -52,5 +53,10 @@ export class AuthController {
     return this.passwordService.resetPassword(resetPasswordDto);
   }
 
-  // sign out missing
+  @Post('sign-out')
+  @UseGuards(JwtAuthGuard)
+  signOut(@Request() request) {
+    const jti = request.user.jti;
+    return this.authService.signOut(jti);
+  }
 }
