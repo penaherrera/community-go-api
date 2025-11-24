@@ -34,7 +34,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-  ) {}
+  ) { }
 
   async create(userId: string): Promise<Auth> {
     const { jwtExpiration, jwtRefreshExpiration } = this.authConfiguration;
@@ -43,7 +43,7 @@ export class AuthService {
     const refreshExpiresAt = new Date(
       now.setMinutes(
         now.getMinutes() +
-          (parseInt(jwtExpiration) + parseInt(jwtRefreshExpiration)),
+        (parseInt(jwtExpiration) + parseInt(jwtRefreshExpiration)),
       ),
     );
 
@@ -198,5 +198,18 @@ export class AuthService {
     const response = await this.create(auth.userId);
 
     return response;
+  }
+
+
+  async signOut(jti: string): Promise<{ message: string }> {
+    try {
+      await this.prismaService.auth.delete({
+        where: { jti }
+      });
+
+      return { message: 'User signed out successfully' };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid session');
+    }
   }
 }

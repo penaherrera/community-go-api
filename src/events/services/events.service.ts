@@ -28,6 +28,7 @@ export class EventsService {
         user: true,
         likes: true,
         bookMarks: true,
+        attendances: true,
       },
     });
 
@@ -39,6 +40,7 @@ export class EventsService {
           excludeExtraneousValues: true,
         }),
         likesCount: event.likes.length,
+        attendeesCount: event.attendances.length,
         isLikedByCurrentUser: event.likes.some(
           (like) => like.userId === userId,
         ),
@@ -61,12 +63,14 @@ export class EventsService {
         bookMarks: true,
         comments: true,
         user: true,
+        attendances: true,
       },
     });
 
     return allEvents.map((event) => {
       const likesCount = event.likes.length;
       const commentsCount = event.comments.length;
+      const attendeesCount = event.attendances.length;
 
       const isLikedByCurrentUser = event.likes.some(
         (like) => like.userId === userId,
@@ -85,6 +89,7 @@ export class EventsService {
           ...event,
           creator: creatorDto,
           likesCount,
+          attendeesCount,
           commentsCount,
           isLikedByCurrentUser,
           isBookmarkedByCurrentUser,
@@ -108,6 +113,7 @@ export class EventsService {
         },
         likes: true,
         bookMarks: true,
+        attendances: true,
       },
     });
 
@@ -117,6 +123,7 @@ export class EventsService {
 
     const commentsCount = event.comments.length;
     const likesCount = event.likes.length;
+    const attendeesCount = event.attendances.length;
 
     const isLikedByCurrentUser = event.likes.some(
       (like) => like.userId === userId,
@@ -155,6 +162,7 @@ export class EventsService {
         comments: commentsDto,
         likesCount,
         commentsCount,
+        attendeesCount,
         isLikedByCurrentUser,
         isBookmarkedByCurrentUser,
       },
@@ -181,11 +189,13 @@ export class EventsService {
         },
         likes: true,
         bookMarks: true,
+        attendances: true,
       },
     });
 
     const commentsCount = event.comments.length;
     const likesCount = event.likes.length;
+    const attendeesCount = event.attendances.length;
 
     const isLikedByCurrentUser = event.likes.some(
       (like) => like.userId === userId,
@@ -224,6 +234,7 @@ export class EventsService {
         comments: commentsDto,
         likesCount,
         commentsCount,
+        attendeesCount,
         isLikedByCurrentUser,
         isBookmarkedByCurrentUser,
       },

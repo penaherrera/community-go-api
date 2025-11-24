@@ -19,6 +19,7 @@ import { ResetPasswordDto } from '../../auth/dtos/requests/reset-password.dto';
 import { EmailDto } from '../dtos/requests/email.dto';
 import { PasswordService } from '../services/password.service';
 import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GoogleOAuthGuard } from '../guards/google-oauth.guard';
 
 @UseFilters(HttpExceptionFilter)
@@ -57,6 +58,12 @@ export class AuthController {
     return this.passwordService.resetPassword(resetPasswordDto);
   }
 
+  @Post('sign-out')
+  @UseGuards(JwtAuthGuard)
+  signOut(@Request() request) {
+    const jti = request.user.jti;
+    return this.authService.signOut(jti);
+  }
   @Get('google-login')
   @UseGuards(GoogleOAuthGuard)
   async googleAuth(@Request() req) {}
@@ -66,6 +73,4 @@ export class AuthController {
   async googleAuthCallback(@Req() req) {
     return await this.authService.handleGoogleResponse(req.user);
   }
-
-  // sign out missing
 }

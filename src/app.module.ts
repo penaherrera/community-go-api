@@ -7,6 +7,8 @@ import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { AttendancesModule } from './attendances/attendances.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ConfigModule } from '@nestjs/config';
     EventsModule,
     LikesModule,
     CommentsModule,
+    AttendancesModule,
+    BookmarksModule,
   ],
   providers: [GoogleStrategy],
 })

@@ -25,4 +25,6 @@ export class UserEntity implements User {
   readonly updatedAt: Date;
 
   readonly deletedAt: Date | null;
+
+  readonly jti?: string;
 }
