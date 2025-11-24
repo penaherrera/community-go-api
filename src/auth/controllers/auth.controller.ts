@@ -6,6 +6,10 @@ import {
   Body,
   Patch,
   UseFilters,
+  Get,
+  Res,
+  Req,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { PassportLocalGuard } from '../guards/passport-local.guard';
@@ -16,6 +20,7 @@ import { EmailDto } from '../dtos/requests/email.dto';
 import { PasswordService } from '../services/password.service';
 import { HttpExceptionFilter } from '../../common/filters/http-exception.filter';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { GoogleOAuthGuard } from '../guards/google-oauth.guard';
 
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
@@ -58,5 +63,14 @@ export class AuthController {
   signOut(@Request() request) {
     const jti = request.user.jti;
     return this.authService.signOut(jti);
+  }
+  @Get('google-login')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth(@Request() req) {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthCallback(@Req() req) {
+    return await this.authService.handleGoogleResponse(req.user);
   }
 }
